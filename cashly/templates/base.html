@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cashly{% endblock %}</title>
+    <script>
+      if (localStorage.getItem('theme') === 'dark' ||
+          (!localStorage.getItem('theme') && matchMedia('(prefers-color-scheme:dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -14,14 +20,14 @@
 
     <nav class="navbar">
         <div class="nav-inner">
-            <a href="{{ url_for('landing') }}" class="nav-brand">
+            <a href="{{ url_for('auth.landing') }}" class="nav-brand">
                 <span class="brand-icon">◈</span>
                 <span class="brand-name">Cashly</span>
             </a>
             <div class="nav-links">
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">☾</button>
-                <a href="{{ url_for('login') }}">Sign in</a>
-                <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>
+                <a href="{{ url_for('auth.login') }}">Sign in</a>
+                <a href="{{ url_for('auth.register') }}" class="nav-cta">Get started</a>
             </div>
         </div>
     </nav>

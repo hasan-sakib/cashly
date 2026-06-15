@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Server error — Cashly{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1 class="auth-title">500</h1>
+            <p class="auth-subtitle">Something went wrong on our end.</p>
+        </div>
+        <p style="text-align:center">
+            <a href="{{ url_for('auth.landing') }}" class="btn-primary">Go home</a>
+        </p>
+    </div>
+</section>
+{% endblock %}
