@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Cashly{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Hi {{ current_user.username }}, here's your spending overview.</p>
+        </div>
+        <div class="page-actions">
+            <form method="GET" action="{{ url_for('dashboard.index') }}" class="month-picker">
+                <input type="month" name="month" value="{{ month }}" class="form-input form-input--sm" onchange="this.form.submit()">
+            </form>
+            <a href="{{ url_for('expenses.add') }}" class="btn-primary">+ Add expense</a>
+        </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-label">This month</span>
+            <span class="stat-value">৳{{ "%.2f"|format(monthly_total) }}</span>
+            {% if month_vs_last.pct is not none %}
+                <span class="stat-delta {% if month_vs_last.diff > 0 %}stat-delta--up{% else %}stat-delta--down{% endif %}">
+                    {% if month_vs_last.diff > 0 %}▲{% else %}▼{% endif %}
+                    {{ "%.1f"|format(month_vs_last.pct|abs) }}% vs last month
+                </span>
+            {% else %}
+                <span class="stat-delta">No data for last month</span>
+            {% endif %}
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Categories</span>
+            <span class="stat-value">{{ category_breakdown|length }}</span>
+            <span class="stat-delta">active this month</span>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Transactions</span>
+            <span class="stat-value">{{ recent_expenses|length }}</span>
+            <span class="stat-delta">recent entries shown</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+
+        <!-- Category breakdown -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Spending by category</h2>
+            </div>
+            {% if category_breakdown %}
+                {% set total = monthly_total if monthly_total > 0 else 1 %}
+                <div class="breakdown-list">
+                    {% for cat in category_breakdown %}
+                    <div class="breakdown-row">
+                        <span class="breakdown-icon" style="background:{{ cat.color }}22; color:{{ cat.color }}">{{ cat.icon }}</span>
+                        <div class="breakdown-info">
+                            <span class="breakdown-name">{{ cat.name }}</span>
+                            <div class="breakdown-bar-track">
+                                <div class="breakdown-bar" style="width:{{ (cat.total / total * 100)|round(1) }}%; background:{{ cat.color }}"></div>
+                            </div>
+                        </div>
+                        <span class="breakdown-amt">৳{{ "%.2f"|format(cat.total) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-msg">No expenses recorded for {{ month }}.</p>
+            {% endif %}
+        </div>
+
+        <!-- Recent expenses -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Recent expenses</h2>
+                <a href="{{ url_for('expenses.index') }}" class="card-link">View all →</a>
+            </div>
+            {% if recent_expenses %}
+                <ul class="recent-list">
+                    {% for exp in recent_expenses %}
+                    <li class="recent-item">
+                        <span class="recent-icon" style="background:{{ exp.category_color }}22; color:{{ exp.category_color }}">{{ exp.category_icon }}</span>
+                        <div class="recent-info">
+                            <span class="recent-desc">{{ exp.description }}</span>
+                            <span class="recent-meta">{{ exp.category_name }} · {{ exp.expense_date }}</span>
+                        </div>
+                        <span class="recent-amt">৳{{ "%.2f"|format(exp.amount) }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-msg">No expenses yet. <a href="{{ url_for('expenses.add') }}">Add one →</a></p>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -6,6 +6,7 @@ _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class BaseConfig:
     SECRET_KEY                 = os.environ.get("SECRET_KEY", "dev-only-insecure-key")
+    WTF_CSRF_ENABLED           = True
     SESSION_COOKIE_HTTPONLY    = True
     SESSION_COOKIE_SAMESITE    = "Lax"
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
@@ -17,8 +18,9 @@ class DevelopmentConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    TESTING       = True
-    DATABASE_PATH = ":memory:"
+    TESTING          = True
+    WTF_CSRF_ENABLED = False
+    DATABASE_PATH    = "file::memory:?cache=shared"
 
 
 class ProductionConfig(BaseConfig):

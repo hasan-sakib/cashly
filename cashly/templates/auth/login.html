@@ -13,23 +13,25 @@
         </div>
 
         <div class="auth-card">
-            {% if error %}
-            <div class="auth-error">{{ error }}</div>
-            {% endif %}
+            <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+                {{ form.hidden_tag() }}
 
-            <form method="POST" action="{{ url_for('auth.login') }}">
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" id="email" name="email"
-                           class="form-input" placeholder="you@example.com"
-                           required autofocus>
+                <div class="form-group {% if form.email.errors %}form-group--error{% endif %}">
+                    <label for="email">{{ form.email.label.text }}</label>
+                    {{ form.email(id="email", class="form-input", placeholder="you@example.com", autofocus=true) }}
+                    {% for error in form.email.errors %}
+                        <span class="form-error">{{ error }}</span>
+                    {% endfor %}
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password"
-                           class="form-input" placeholder="Your password"
-                           required>
+
+                <div class="form-group {% if form.password.errors %}form-group--error{% endif %}">
+                    <label for="password">{{ form.password.label.text }}</label>
+                    {{ form.password(id="password", class="form-input", placeholder="Your password") }}
+                    {% for error in form.password.errors %}
+                        <span class="form-error">{{ error }}</span>
+                    {% endfor %}
                 </div>
+
                 <button type="submit" class="btn-submit">Sign in</button>
             </form>
         </div>

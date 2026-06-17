@@ -26,11 +26,31 @@
             </a>
             <div class="nav-links">
                 <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">☾</button>
-                <a href="{{ url_for('auth.login') }}">Sign in</a>
-                <a href="{{ url_for('auth.register') }}" class="nav-cta">Get started</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
+                    <a href="{{ url_for('expenses.index') }}">Expenses</a>
+                    <a href="{{ url_for('profile.index') }}">{{ current_user.username }}</a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-cta">Sign out</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}">Sign in</a>
+                    <a href="{{ url_for('auth.register') }}" class="nav-cta">Get started</a>
+                {% endif %}
             </div>
         </div>
     </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-list">
+            {% for category, message in messages %}
+            <div class="alert alert--{{ category }}">
+                <span>{{ message }}</span>
+                <button class="alert__close" onclick="this.parentElement.remove()" aria-label="Dismiss">×</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
 
     <main class="main-content">
         {% block content %}{% endblock %}

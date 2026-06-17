@@ -90,7 +90,8 @@ _DEFAULT_CATEGORIES = [
 def get_db() -> sqlite3.Connection:
     if "db" not in g:
         path = current_app.config["DATABASE_PATH"]
-        g.db = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
+        use_uri = path.startswith("file:")
+        g.db = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES, uri=use_uri)
         g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys = ON")
     return g.db
@@ -104,7 +105,7 @@ def close_db(e=None) -> None:
 
 def init_db() -> None:
     path = current_app.config["DATABASE_PATH"]
-    if path != ":memory:":
+    if not path.startswith("file:") and path != ":memory:":
         os.makedirs(os.path.dirname(path), exist_ok=True)
     db = get_db()
     db.executescript(SCHEMA_SQL)
@@ -123,6 +124,12 @@ def seed_db() -> None:
 
 def init_app(app) -> None:
     app.teardown_appcontext(close_db)
+
+    path = app.config["DATABASE_PATH"]
+    if path.startswith("file:") and "memory" in path:
+        # Keep a persistent connection so the shared in-memory DB survives context teardowns
+        app._keep_alive_conn = sqlite3.connect(path, uri=True)
+
     with app.app_context():
         init_db()
         seed_db()
