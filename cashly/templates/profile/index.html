@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Cashly{% endblock %}
+
+{% block content %}
+<div class="page-wrap page-wrap--narrow">
+
+    <div class="page-header">
+        <h1 class="page-title">Profile & settings</h1>
+    </div>
+
+    <div class="card">
+        <form method="POST" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="form-group {% if form.username.errors %}form-group--error{% endif %}">
+                <label>{{ form.username.label.text }}</label>
+                {{ form.username(class="form-input") }}
+                {% for e in form.username.errors %}<span class="form-error">{{ e }}</span>{% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label>Email address</label>
+                <input type="email" class="form-input" value="{{ current_user.email }}" disabled>
+                <span class="form-hint">Email cannot be changed.</span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group {% if form.currency.errors %}form-group--error{% endif %}">
+                    <label>{{ form.currency.label.text }}</label>
+                    {{ form.currency(class="form-input") }}
+                </div>
+                <div class="form-group {% if form.theme.errors %}form-group--error{% endif %}">
+                    <label>{{ form.theme.label.text }}</label>
+                    {{ form.theme(class="form-input") }}
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn-submit btn-submit--inline">Save changes</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

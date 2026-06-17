@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Expenses — Cashly{% endblock %}
+
+{% block content %}
+<div class="page-wrap">
+
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Expenses</h1>
+            <p class="page-subtitle">{{ total }} expense{{ 's' if total != 1 }} total</p>
+        </div>
+        <a href="{{ url_for('expenses.add') }}" class="btn-primary">+ Add expense</a>
+    </div>
+
+    <!-- Filter bar -->
+    <form method="GET" action="{{ url_for('expenses.index') }}" class="filter-bar">
+        <input type="text" name="q" value="{{ search }}" placeholder="Search description…" class="form-input form-input--sm filter-search">
+        <input type="month" name="month" value="{{ month }}" class="form-input form-input--sm">
+        <select name="category" class="form-input form-input--sm">
+            <option value="">All categories</option>
+            {% for cat in categories %}
+            <option value="{{ cat['id'] }}" {% if category == cat['id'] %}selected{% endif %}>{{ cat['icon'] }} {{ cat['name'] }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn-ghost btn-sm">Filter</button>
+        {% if search or month or category %}
+        <a href="{{ url_for('expenses.index') }}" class="btn-ghost btn-sm">Clear</a>
+        {% endif %}
+    </form>
+
+    {% if expenses %}
+    <div class="table-wrapper">
+        <table class="expense-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th class="col-right">Amount</th>
+                    <th class="col-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exp in expenses %}
+                <tr>
+                    <td class="col-date">{{ exp.expense_date }}</td>
+                    <td>
+                        <span class="exp-desc">{{ exp.description }}</span>
+                        {% if exp.note %}<span class="exp-note">{{ exp.note }}</span>{% endif %}
+                    </td>
+                    <td>
+                        <span class="category-badge" style="background:{{ exp.category_color }}22; color:{{ exp.category_color }}">
+                            {{ exp.category_icon }} {{ exp.category_name }}
+                        </span>
+                    </td>
+                    <td class="col-right col-amount">{{ exp.currency }} {{ "%.2f"|format(exp.amount) }}</td>
+                    <td class="col-right">
+                        <div class="row-actions">
+                            <a href="{{ url_for('expenses.edit', expense_id=exp.id) }}" class="btn-ghost btn-sm">Edit</a>
+                            <form method="POST" action="{{ url_for('expenses.delete', expense_id=exp.id) }}" class="inline-form"
+                                  onsubmit="return confirm('Delete this expense?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn-danger btn-sm">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% set pages = (total // per_page) + (1 if total % per_page else 0) %}
+    {% if pages > 1 %}
+    <div class="pagination">
+        {% if page > 1 %}
+        <a href="{{ url_for('expenses.index', page=page-1, q=search, month=month, category=category) }}" class="btn-ghost btn-sm">← Prev</a>
+        {% endif %}
+        <span class="pagination-info">Page {{ page }} of {{ pages }}</span>
+        {% if page < pages %}
+        <a href="{{ url_for('expenses.index', page=page+1, q=search, month=month, category=category) }}" class="btn-ghost btn-sm">Next →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3 class="empty-title">No expenses found</h3>
+        <p class="empty-body">
+            {% if search or month or category %}
+                Try adjusting your filters.
+            {% else %}
+                Start by adding your first expense.
+            {% endif %}
+        </p>
+        <a href="{{ url_for('expenses.add') }}" class="btn-primary">Add expense</a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

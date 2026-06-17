@@ -11,8 +11,19 @@ def create_app(config_name: str = "development") -> Flask:
 
     os.makedirs(app.instance_path, exist_ok=True)
 
+    from cashly.extensions import login_manager, csrf, limiter
+    login_manager.init_app(app)
+    csrf.init_app(app)
+    limiter.init_app(app)
+
     from cashly.database.db import init_app as db_init_app
     db_init_app(app)
+
+    from cashly.services import auth_service
+
+    @login_manager.user_loader
+    def load_user(user_id: str):
+        return auth_service.get_user_by_id(int(user_id))
 
     from cashly.blueprints.auth import auth_bp
     from cashly.blueprints.expenses import expenses_bp
